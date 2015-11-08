@@ -1,0 +1,23 @@
+<script src="jQuery.js"></script>
+
+<script>
+var deviceName = "deafAlert4";
+
+var url = "http://api.decoded.co/store/" + deviceName + "?value="
+
+var minValue = 20;
+var maxValue = 30;
+
+var value;
+
+
+time = setInterval(function(){
+	value = Math.random() * (maxValue - minValue) + minValue;
+	value = value.toFixed(0);
+	$.get( url + value );
+	console.log("Just got: " + url + value);
+},3000);
+
+
+
+</script>
