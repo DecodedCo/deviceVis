@@ -1,128 +1,138 @@
-<script>
-
-var deviceName = "deafAlert4";
-
-</script>
-
 <html lang="en">
- 
-<head>
+
+	<script>
+	// Enter the device name that you have configured in your arduino code.
+	var deviceName = "test7";
+
+	</script>
+
+	<head>
+		<!-- Stylesheets including Normalize -->
+	    <link rel="stylesheet" type="text/css" href="https://necolas.github.io/normalize.css/3.0.2/normalize.css">
+
+	    <link rel="stylesheet" type="text/css" href="style.css">
+	 	
+	 	<title>Live Data</title>
+
+	</head>
+	 
+	<body>
+	 	<div class="image-bg"></div>
+	 	<header>
+	      	<h1>My Startup.</h1>
+	  	</header>
+	    <div class="container">
+	 		<div class="card">
+	 			<h1>Live Data</h1>
+	 				<!-- This is where the JavaScript will create the visualisation -->
+	 				<svg id="visualisation" width="1000" height="500">
+	 				</svg>
+	        </div>
+	    </div>
+	    <!-- Include d3.js -->
+	    <script src="//cdnjs.cloudflare.com/ajax/libs/d3/3.5.6/d3.min.js" charset="utf-8"></script>
+	    <!-- Begin our custom script -->
+	    <script>
 
 
-    <link rel="stylesheet" type="text/css" href="https://necolas.github.io/normalize.css/3.0.2/normalize.css">
+		function render(){
+		// This function will fetch new data and draw the graph
 
-    <link rel="stylesheet" type="text/css" href="css/living.css">
- 	<title>Live Data</title>
-</head>
- 
-<body>
- 	<div class="image-bg"></div>
- 	<header>
- 	    <div class="nav-left">
-      <h1>My Startup.</h1>
-    </div>
-    <div class="nav-right">
-    </div>
-  </header>
-    <div class="container">
- 		<div class="card">
- 			<h1>Live Data</h1>
- 			<div class="bankCalendar">
- 				<svg id="visualisation" width="1000" height="500"></svg>
- 			</div>
-        </div>
-    </div>
- 
-</body>
- 
-</html>
-<script src="d3.js" charset="utf-8"></script>
-<script>
+		//Use built in function of d3 to pull data using AJAX, deviceName is configured at the top of this page.
+			d3.json("http://api.decoded.co/store/" + deviceName, function(error, json){
 
+					// Create an empty array
+					var jsonAsArray = [];
 
-function render(){
+					// Convert our JSON Object to an array for d3
+					for(var key in json){
+						var entry = json[key];
+						entry.id = key;
+						jsonAsArray.push(entry);
+					}
 
-	
-
-	d3.json("http://api.decoded.co/store/" + deviceName, function(error, json){
-
-		var jsonAsArray = [];
-
-		for(var key in json){
-			var entry = json[key];
-			entry.id = key;
-			jsonAsArray.push(entry);
-		}
-
-
-		filteredArray = jsonAsArray.slice((jsonAsArray.length-200), (jsonAsArray.length+1));
+					// Take just the 200 most recent entries
+					filteredArray = jsonAsArray.slice((jsonAsArray.length-200), (jsonAsArray.length+1));
 		
+					data = filteredArray;
 
-		data = filteredArray;
+					// Describe how we want our times formatted
+					var timeFormat = d3.time.format("%H:%M:%S");
+
+					//Configure our visualisation 
+					var vis = d3.select("#visualisation"),
+					    WIDTH = 1000,
+					    HEIGHT = 400,
+					    MARGINS = {
+					        top: 20,
+					        right: 20,
+					        bottom: 10,
+					        left: 50
+					    },
+				    //Set up our scales using the maximum and minimum from the data
+				    xScale = d3.time.scale().range([MARGINS.left, WIDTH - MARGINS.right]).domain([d3.min(data, function(d) {
+				    	return d.id;
+					}), d3.max(data, function(d) {
+					    return d.id;
+					})]),
+		   			yScale = d3.scale.linear().range([HEIGHT - MARGINS.top, MARGINS.bottom]).domain([HEIGHT - MARGINS.top, MARGINS.bottom]).domain([d3.min(data, function(d) {
+		    				return d.value;
+						}), d3.max(data, function(d) {
+		    				return d.value;
+						})]),
+		   			//Configure our axes
+				   xAxis = d3.svg.axis()
+				    .scale(xScale)
+				    .tickFormat(timeFormat),
+					yAxis = d3.svg.axis()
+				    .scale(yScale)
+				    .orient("left");
+
+				    // Remove anything that's already been drawn
+					vis.selectAll(".axis").remove();
+					vis.selectAll("path").remove();
+
+					// Draw our X Axis
+					vis.append("svg:g")
+						.attr("class", "axis")
+					    .attr("transform", "translate(0," + (HEIGHT - MARGINS.bottom) + ")")
+					    .call(xAxis);
+
+					// Draw our Y Axis
+					vis.append("svg:g")
+						.attr("class", "axis")
+						.attr("transform", "translate(" + (MARGINS.left) + ",0)")
+					    .call(yAxis);
+
+					// Set up our line
+					var lineGen = d3.svg.line()
+					  .x(function(d) {
+					    return xScale(d.id);
+					  })
+					  .y(function(d) {
+					    return yScale(d.value);
+					  });
+
+					// Draw our line
+
+					vis.append('svg:path')
+					  .attr('d', lineGen(data))
+					  .attr('stroke', 'green')
+					  .attr('stroke-width', 2)
+					  .attr('fill', 'none');
+
+			}); //End of d3.json
+		};
+
+		// Run the render function for the first time
+		render();
+
+		// Run the render function every two seconds.
+		time = setInterval(function(){
+			render();
+		},2000);
+		</script>
+	</body>
+</html>
 
 
-		var timeFormat = d3.time.format("%H:%M:%S");
-
-		var vis = d3.select("#visualisation"),
-		    WIDTH = 1000,
-		    HEIGHT = 400,
-		    MARGINS = {
-		        top: 20,
-		        right: 20,
-		        bottom: 10,
-		        left: 50
-		    },
-		   xScale = d3.time.scale().range([MARGINS.left, WIDTH - MARGINS.right]).domain([d3.min(data, function(d) {
-		    return d.id;
-		}), d3.max(data, function(d) {
-		    return d.id;
-		})]),
-		   yScale = d3.scale.linear().range([HEIGHT - MARGINS.top, MARGINS.bottom]).domain([HEIGHT - MARGINS.top, MARGINS.bottom]).domain([d3.min(data, function(d) {
-		    return d.value;
-		}), d3.max(data, function(d) {
-		    return d.value;
-		})]),
-		   
-		   xAxis = d3.svg.axis()
-		    .scale(xScale)
-		    .tickFormat(timeFormat),
-			yAxis = d3.svg.axis()
-		    .scale(yScale)
-		    .orient("left");
-
-		vis.selectAll(".axis").remove();
-		vis.selectAll("path").remove();
-
-		vis.append("svg:g")
-			.attr("class", "axis")
-		    .attr("transform", "translate(0," + (HEIGHT - MARGINS.bottom) + ")")
-		    .call(xAxis);
-
-		vis.append("svg:g")
-			.attr("class", "axis")
-			.attr("transform", "translate(" + (MARGINS.left) + ",0)")
-		    .call(yAxis);
-
-		var lineGen = d3.svg.line()
-		  .x(function(d) {
-		    return xScale(d.id);
-		  })
-		  .y(function(d) {
-		    return yScale(d.value);
-		  });
-
-		vis.append('svg:path')
-		  .attr('d', lineGen(data))
-		  .attr('stroke', 'green')
-		  .attr('stroke-width', 2)
-		  .attr('fill', 'none');
-
-	}); //End of d3.json
-};
-
-render();
-
-time = setInterval(function(){
-	render();
-},2000);
-</script>
