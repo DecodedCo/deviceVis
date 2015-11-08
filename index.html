@@ -57,7 +57,7 @@
 					for(var key in json){
 						var entry = json[key];
 						entry.id = key;
-						var date = new Date(entry.id*1000);
+						var date = new Date(entry.updated);
 						entry.updated = timeFormat(date);
 						jsonAsArray.push(entry);
 					}
@@ -139,7 +139,6 @@
 				        .attr("class", "point")
 				        .on("mouseover", function(d) {		
 							div.transition()
-								.duration(200)	
 								.style("opacity", .9);	
 							div	.html(
 								d.updated + "<br>" + d.value)
