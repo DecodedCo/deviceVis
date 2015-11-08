@@ -39,8 +39,11 @@ var deviceName = "deafAlert4";
 <script src="d3.js" charset="utf-8"></script>
 <script>
 
-time = setInterval(function(){
-	//Code here
+
+function render(){
+
+	
+
 	d3.json("http://api.decoded.co/store/" + deviceName, function(error, json){
 
 		var jsonAsArray = [];
@@ -48,10 +51,18 @@ time = setInterval(function(){
 		for(var key in json){
 			var entry = json[key];
 			entry.id = key;
+			entry.date = new Date(key);
 			jsonAsArray.push(entry);
 		}
 
+		jsonAsArray = jsonAsArray.slice(-100);
+			if (jsonAsArray.length < 201) {
+     			jsonAsArray.shift();
+			}
+
 		data = jsonAsArray;
+
+
 
 		var timeFormat = d3.time.format("%H:%M:%S");
 
@@ -82,6 +93,9 @@ time = setInterval(function(){
 		    .scale(yScale)
 		    .orient("left");
 
+		vis.selectAll(".axis").remove();
+		vis.selectAll("path").remove();
+
 		vis.append("svg:g")
 			.attr("class", "axis")
 		    .attr("transform", "translate(0," + (HEIGHT - MARGINS.bottom) + ")")
@@ -107,7 +121,11 @@ time = setInterval(function(){
 		  .attr('fill', 'none');
 
 	}); //End of d3.json
+};
 
-},3000);
+render();
 
+time = setInterval(function(){
+	render();
+},2000);
 </script>
