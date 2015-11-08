@@ -2,7 +2,7 @@
 
 	<script>
 	// Enter the device name that you have configured in your arduino code.
-	var deviceName = "yourDeviceName";
+	var deviceName = "test9";
 
 	</script>
 
@@ -34,6 +34,12 @@
 	    <!-- Begin our custom script -->
 	    <script>
 
+	    //Create our tool tip
+	    var div = d3.select("body")
+			.append("div")  // declare the tooltip div 
+			.attr("class", "tooltip")              // apply the 'tooltip' class
+			.style("opacity", 0);                  // set the opacity to nil
+
 
 		function render(){
 		// This function will fetch new data and draw the graph
@@ -44,10 +50,15 @@
 					// Create an empty array
 					var jsonAsArray = [];
 
+					// Describe how we want our times formatted
+					var timeFormat = d3.time.format("%H:%M:%S");
+
 					// Convert our JSON Object to an array for d3
 					for(var key in json){
 						var entry = json[key];
 						entry.id = key;
+						var date = new Date(entry.id*1000);
+						entry.updated = timeFormat(date);
 						jsonAsArray.push(entry);
 					}
 
@@ -56,8 +67,6 @@
 		
 					data = filteredArray;
 
-					// Describe how we want our times formatted
-					var timeFormat = d3.time.format("%H:%M:%S");
 
 					//Configure our visualisation 
 					var vis = d3.select("#visualisation"),
@@ -88,9 +97,11 @@
 				    .scale(yScale)
 				    .orient("left");
 
+
 				    // Remove anything that's already been drawn
 					vis.selectAll(".axis").remove();
 					vis.selectAll("path").remove();
+					vis.selectAll("circle").remove();
 
 					// Draw our X Axis
 					vis.append("svg:g")
@@ -117,9 +128,30 @@
 
 					vis.append('svg:path')
 					  .attr('d', lineGen(data))
-					  .attr('stroke', 'green')
-					  .attr('stroke-width', 2)
-					  .attr('fill', 'none');
+					  .attr("class", "line");
+
+					vis.selectAll("dot")
+				        .data(data)
+				    .enter().append("circle")
+				        .attr("r", 2.5)
+				        .attr("cx", function(d) { return xScale(d.id); })
+				        .attr("cy", function(d) { return yScale(d.value); })
+				        .attr("class", "point")
+				        .on("mouseover", function(d) {		
+							div.transition()
+								.duration(200)	
+								.style("opacity", .9);	
+							div	.html(
+								d.updated + "<br>" + d.value)
+							.style("left", (d3.event.pageX) + "px")			 
+							.style("top", (d3.event.pageY - 28) + "px");
+							})
+				        .on("mouseout", function(){
+				        	div.transition()
+								.duration(500)	
+								.style("opacity", 0);
+				        });
+
 
 			}); //End of d3.json
 		};

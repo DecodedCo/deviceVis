@@ -109,3 +109,26 @@ label {
     font-family: sans-serif;
     font-size: 13px;
 }
+
+.point {
+  stroke: #22E022;
+  fill: #22E022;
+}
+.line {
+  stroke: green;
+  stroke-width: 2;
+  fill: none;
+}
+div.tooltip {
+  position: absolute; 
+  text-align: center; 
+  width: 60px;  
+  height: 32px;   
+  padding: 4px; 
+  font: 12px sans-serif;  
+  background: rgba(34, 224, 34, 0.63); 
+  border: 0px;          
+  border-radius: 8px;
+ /*  pointer-events: none;  This line needs to be removed */
+  
+}
