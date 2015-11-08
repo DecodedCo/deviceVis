@@ -12,7 +12,7 @@ var deviceName = "deafAlert4";
     <link rel="stylesheet" type="text/css" href="https://necolas.github.io/normalize.css/3.0.2/normalize.css">
 
     <link rel="stylesheet" type="text/css" href="css/living.css">
- 
+ 	<title>Live Data</title>
 </head>
  
 <body>
@@ -51,17 +51,14 @@ function render(){
 		for(var key in json){
 			var entry = json[key];
 			entry.id = key;
-			entry.date = new Date(key);
 			jsonAsArray.push(entry);
 		}
 
-		jsonAsArray = jsonAsArray.slice(-100);
-			if (jsonAsArray.length < 201) {
-     			jsonAsArray.shift();
-			}
 
-		data = jsonAsArray;
+		filteredArray = jsonAsArray.slice((jsonAsArray.length-200), (jsonAsArray.length+1));
+		
 
+		data = filteredArray;
 
 
 		var timeFormat = d3.time.format("%H:%M:%S");
