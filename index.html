@@ -2,7 +2,7 @@
 
 	<script>
 	// Enter the device name that you have configured in your arduino code.
-	var deviceName = "test9";
+	var deviceName = "yourDeviceName";
 
 	</script>
 
@@ -45,7 +45,7 @@
 		// This function will fetch new data and draw the graph
 
 		//Use built in function of d3 to pull data using AJAX, deviceName is configured at the top of this page.
-			d3.json("http://form.decoded.co/store/" + deviceName, function(error, json){
+			d3.json("http://api.decoded.com/store/" + deviceName, function(error, json){
 
 					// Create an empty array
 					var jsonAsArray = [];
@@ -56,8 +56,9 @@
 					// Convert our JSON Object to an array for d3
 					for(var key in json){
 						var entry = json[key];
-						entry.id = key;
-						var date = new Date(entry.updated);
+						entry.id = key*1000	;
+						var date = new Date(entry.updated*1000);
+						console.log(date);
 						entry.updated = timeFormat(date);
 						jsonAsArray.push(entry);
 					}
