@@ -2,7 +2,7 @@
 
 	<script>
 	// Enter the device name that you have configured in your arduino code.
-	var deviceName = "yourDeviceName";
+	var deviceName = "burgl3r2";
 
 	</script>
 
@@ -56,11 +56,17 @@
 					// Convert our JSON Object to an array for d3
 					for(var key in json){
 						var entry = json[key];
-						entry.id = key*1000	;
-						var date = new Date(entry.updated*1000);
-						console.log(date);
-						entry.updated = timeFormat(date);
-						jsonAsArray.push(entry);
+              entry.id = key*1000	;
+            if(typeof entry.id !== undefined){
+              var date = new Date(entry.updated*1000);
+              //console.log(date);
+              entry.updated = timeFormat(date);
+              if(!isNaN(date.getTime())){
+                	jsonAsArray.push(entry);
+              } else {
+                console.log("Found a nan");
+              }
+            }
 					}
 
 					// Take just the 200 most recent entries
@@ -166,5 +172,3 @@
 		</script>
 	</body>
 </html>
-
-
